@@ -3,52 +3,85 @@ version: '3'
 services:
   db:
     image: mysql:8.0
-    container_name: db
     restart: unless-stopped
     env_file: .env
-    environment:
-      - MYSQL_DATABASE=wordpress
     volumes:
       - dbdata:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
     command: '--default-authentication-plugin=mysql_native_password'
     networks:
       - app-network
 
-  wordpress:
+  wp-site1:
     depends_on:
       - db
     image: wordpress:5.6.0-fpm-alpine
-    container_name: wordpress
     restart: unless-stopped
     env_file: .env
     environment:
       - WORDPRESS_DB_HOST=db:3306
-      - WORDPRESS_DB_USER=$MYSQL_USER
-      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
-      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DB_USER=$MYSQL_USER_1
+      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD_1
+      - WORDPRESS_DB_NAME=$MYSQL_DATABASE_1
     volumes:
-      - wordpress:/var/www/html
+      - wp-site1:/var/www/html
+      - wp-site1:/var/www/html-site1
+    networks:
+      - app-network
+
+  wp-site2:
+    depends_on:
+      - db
+    image: wordpress:5.6.0-fpm-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=$MYSQL_USER_2
+      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD_2
+      - WORDPRESS_DB_NAME=$MYSQL_DATABASE_2
+    volumes:
+      - wp-site2:/var/www/html
+      - wp-site2:/var/www/html-site2
     networks:
       - app-network
 
   webserver:
     depends_on:
-      - wordpress
+      - wp-site1
+      - wp-site2
     image: nginx:1.19.5-alpine
-    container_name: webserver
     restart: unless-stopped
     env_file: .env
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - wordpress:/var/www/html
+      - wp-site1:/var/www/html-site1
+      - wp-site2:/var/www/html-site2
       - ./nginx-conf:/etc/nginx/templates
+      - ./nginx-includes:/etc/nginx/includes
+      - certbot-www:/var/www/html-certbot
+      - certbot-etc:/etc/letsencrypt
     networks:
       - app-network
 
+  certbot:
+    depends_on:
+      - webserver
+    image: certbot/certbot
+    env_file: .env
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email ${EMAIL} --agree-tos --no-eff-email --force-renewal -d ${SERVER_NAME_1} -d ${SERVER_NAME_2}
+
 volumes:
-  wordpress:
   dbdata:
+  wp-site1:
+  wp-site2:
+  certbot-etc:
+  certbot-www:
 
 networks:
   app-network:
