@@ -13,7 +13,11 @@ Start generation with `docker-copose up`, when certificates are generated, stop 
 ## Make some changes
 
 Edit `nginx-conf/default.conf.template`, uncomment ssl lines and comment 8080 lines.
-Be careful, keep ${SERVER_NAME_1} as ssl path, even for site 2.
+
+Be careful, keep ${SERVER_NAME_1} as ssl path, even for site 2. If you want separate certificates, modify the `docker-compose`
+file certbot command and rerun certbot.
+
+TODO: mount a certbot script to generate both certificates automatically.
 
 ## Update `options-ssl-nginx.conf`
 
@@ -30,5 +34,11 @@ docker-compose up -d --scale certbot=0
 ```
 
 Well done, your multiple wordpress SSL sites are successfully running!
+
+# How to renew SSL certificates?
+
+```shell
+docker-compose run certbot renew && docker-compose restart webserver
+```
 
 
