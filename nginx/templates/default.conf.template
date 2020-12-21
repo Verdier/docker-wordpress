@@ -1,0 +1,15 @@
+server {
+        listen 80;
+        listen [::]:80;
+
+        server_name ${SERVER_NAME_1} ${SERVER_NAME_2};
+
+        location ~ /.well-known/acme-challenge {
+                allow all;
+                root /var/www/html-certbot;
+        }
+
+        location / {
+                rewrite ^ https://$host$request_uri? permanent;
+        }
+}

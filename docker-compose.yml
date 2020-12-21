@@ -59,8 +59,8 @@ services:
     volumes:
       - wp-site1:/var/www/html-site1
       - wp-site2:/var/www/html-site2
-      - ./nginx-conf:/etc/nginx/templates
-      - ./nginx-includes:/etc/nginx/includes
+      - ./nginx/templates:/etc/nginx/templates
+      - ./nginx/includes:/etc/nginx/includes
       - certbot-www:/var/www/html-certbot
       - certbot-etc:/etc/letsencrypt
     networks:
@@ -74,7 +74,9 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-www:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email ${EMAIL} --agree-tos --no-eff-email --force-renewal -d ${SERVER_NAME_1} -d ${SERVER_NAME_2}
+    entrypoint: sh -c "
+      certbot certonly --webroot --webroot-path=/var/www/html --email $$EMAIL --agree-tos --no-eff-email --force-renewal -d $$SERVER_NAME_1 &&
+      certbot certonly --webroot --webroot-path=/var/www/html --email $$EMAIL --agree-tos --no-eff-email --force-renewal -d $$SERVER_NAME_2"
 
 volumes:
   dbdata:

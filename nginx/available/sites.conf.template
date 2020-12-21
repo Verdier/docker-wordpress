@@ -1,0 +1,37 @@
+# --- Site 1 ---
+
+server {
+        include includes/common.conf;
+
+        server_name ${SERVER_NAME_1};
+
+        root /var/www/html-site1;
+
+        include includes/options-ssl-nginx.conf;
+        ssl_certificate /etc/letsencrypt/live/${SERVER_NAME_1}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME_1}/privkey.pem;
+
+        location ~ \.php$ {
+                include includes/php.conf;
+                fastcgi_pass wp-site1:9000;
+        }
+}
+
+# --- Site 2 ---
+
+server {
+        include includes/common.conf;
+
+        server_name ${SERVER_NAME_2};
+
+        root /var/www/html-site2;
+
+        include includes/options-ssl-nginx.conf;
+        ssl_certificate /etc/letsencrypt/live/${SERVER_NAME_2}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME_2}/privkey.pem;
+
+        location ~ \.php$ {
+                include includes/php.conf;
+                fastcgi_pass wp-site2:9000;
+        }
+}
