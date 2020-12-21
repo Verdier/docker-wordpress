@@ -16,7 +16,7 @@ When certificates are generated, stop with `Ctrl+C`
 Enable sites by symlinking `sites.conf.templates` into templates:
 
 ```shell
-ln -s nginx/available/sites.conf.templates nginx/templates
+cp -f nginx/available/sites.conf.template nginx/templates/
 ```
 
 ## 4. Update `options-ssl-nginx.conf` (optional)
