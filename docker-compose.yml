@@ -59,8 +59,9 @@ services:
     volumes:
       - wp-site1:/var/www/html-site1
       - wp-site2:/var/www/html-site2
-      - ./nginx/templates:/etc/nginx/templates
-      - ./nginx/includes:/etc/nginx/includes
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./nginx/includes:/etc/nginx/includes:ro
       - certbot-www:/var/www/html-certbot
       - certbot-etc:/etc/letsencrypt
     networks:
